@@ -1,0 +1,188 @@
+---
+title: "Powerlifting Dataset Analysis"
+Name: Agwu Agwu
+output: html_document
+
+---
+
+### Introduction
+
+Powerlifting is a sport that tests an athlete's maximal strength in three main lifts:
+
+- **Squat**
+- **Bench Press**
+- **Deadlift**
+
+In this project, we explore **how different factors impact powerlifting performance**:
+
+- **Age**: How lifters' age correlates with their performance in different lifts.
+- **Weight Class**: How lifters in different weight classes compare in terms of their lifting capabilities.
+- **Equipment Type**: Whether using `Single-ply`, `Raw`, or `Wraps` affects a lifter's performance.
+
+Our goal is to **uncover key trends** that can be used by lifters and coaches to optimize training and performance. We use:
+
+- **`dplyr`** for data cleaning and transformation.
+- **`ggplot2`** for visualizing the results.
+
+This report will present a **cohesive narrative** on what contributes to successful powerlifting outcomes.
+
+---
+
+### Packages Required
+
+```{r, warning=FALSE}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Load your data
+cleaned_data <- read.csv("C:/Users/12818/Pictures/Screenshots/z_stuff/New folder/Untitled Export/ipf_lifts.csv")
+
+# Clean the data 
+cleaned_data <- cleaned_data %>%
+  filter(!is.na(age) & !is.na(best3squat_kg) & !is.na(best3bench_kg) & !is.na(best3deadlift_kg)) %>%
+  mutate(
+    best3squat_kg = ifelse(best3squat_kg < 0, NA, best3squat_kg),
+    best3bench_kg = ifelse(best3bench_kg < 0, NA, best3bench_kg),
+    best3deadlift_kg = ifelse(best3deadlift_kg < 0, NA, best3deadlift_kg)
+  )
+```
+
+
+### Data Source and Preparation
+
+#### Data Source
+
+The dataset used in this analysis was collected from the **International Powerlifting Federation (IPF)**. It consists of **24,018 entries** with information about powerlifting events, lifters' attributes (such as age, sex, and bodyweight), and their best competition lifts in **squat**, **bench press**, and **deadlift**.
+
+The data was gathered to understand trends in powerlifting performance across different demographics and equipment types. The dataset provides a valuable opportunity to identify factors that contribute to better lifts and performance optimization.
+
+#### Data Cleaning and Preprocessing
+
+Data cleaning is a crucial step in ensuring accuracy and consistency. Key steps include:
+
+1. **Handling Missing Values**:
+   - Missing values were observed in key fields such as **age** and **best lift values**. Rows with missing essential data were removed to ensure a consistent dataset.
+
+2. **Removing Invalid Entries**:
+   - Negative values were replaced with `NA` under the assumption that they were data entry errors.
+
+3. **Data Summary**:
+   - After cleaning, the dataset contains **24,110 valid entries**.
+   - **Average Age** of lifters: **32.9 years**.
+   - **Average Bodyweight** of lifters: **79.9 kg**.
+
+### Exploratory Data Analysis (EDA)
+
+#### 1. Age Distribution of Lifters
+
+To understand the typical age range of powerlifters, a histogram was created to show age distribution.
+
+```{r, warning=FALSE}
+# Histogram for Age Distribution
+ggplot(cleaned_data, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Age Distribution of Lifters", x = "Age (years)", y = "Number of Lifters") +
+  theme_minimal()
+```
+
+**Observation**: The majority of lifters are aged 20 to 40, with fewer lifters beyond age 50. This indicates that powerlifting is predominantly a young adult sport, with most lifters in their physical prime.
+
+#### 2. Impact of Equipment Type on Performance
+Box plots were used to analyze how the use of different equipment (Single-ply, Raw, Wraps) impacts performance across squat, bench press, and deadlift lifts.
+
+```{r, warning=FALSE}
+# Box plot for Best 3 Squat by Equipment Type
+ggplot(cleaned_data, aes(x = equipment, y = best3squat_kg, fill = equipment)) +
+  geom_boxplot() +
+  labs(title = "Best 3 Squat by Equipment Type", x = "Equipment Type", y = "Best 3 Squat (kg)") +
+  theme_minimal()
+
+# Box plot for Best 3 Bench by Equipment
+ggplot(cleaned_data, aes(x = equipment, y = best3bench_kg, fill = equipment)) +
+  geom_boxplot() +
+  labs(title = "Best 3 Bench by Equipment", x = "Equipment Type", y = "Best 3 Bench (kg)") +
+  theme_minimal()
+
+# Box plot for Best 3 Deadlift by Equipment
+ggplot(cleaned_data, aes(x = equipment, y = best3deadlift_kg, fill = equipment)) +
+  geom_boxplot() +
+  labs(title = "Best 3 Deadlift by Equipment", x = "Equipment Type", y = "Best 3 Deadlift (kg)") +
+  theme_minimal()
+
+```
+
+**Observation**: The box plots show that lifters using `Single-ply` equipment tend to lift more weight on average than those using `Raw` or `Wraps`. This is likely because `Single-ply` gear provides additional support, making it easier for lifters to handle heavier weights. `Raw` lifters, who use less supportive equipment, generally lift the least weight.
+
+
+#### 3. Age vs. Performance Analysis
+
+To explore how age affects performance, scatter plots were created for each lift.
+
+```{r, warning=FALSE}
+# Scatter plot for Age vs. Best 3 Squat
+ggplot(cleaned_data, aes(x = age, y = best3squat_kg)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  labs(title = "Age vs. Best 3 Squat", x = "Age (years)", y = "Best 3 Squat (kg)") +
+  theme_minimal()
+
+# Scatter plot for Age vs. Best 3 Bench
+ggplot(cleaned_data, aes(x = age, y = best3bench_kg)) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Age vs. Best 3 Bench", x = "Age", y = "Best 3 Bench (kg)") +
+  theme_minimal()
+
+# Scatter plot for Age vs. Best 3 Deadlift
+ggplot(cleaned_data, aes(x = age, y = best3deadlift_kg)) +
+  geom_point(alpha = 0.5, color = "green") +
+  labs(title = "Age vs. Best 3 Deadlift", x = "Age", y = "Best 3 Deadlift (kg)") +
+  theme_minimal()
+```
+
+**Observation**: There is a noticeable decline in performance for lifters beyond age 50, with the strongest performances generally observed between 20 to 40 years of age. This decline is natural due to the reduced muscle mass and recovery ability as lifters age.
+
+#### 4. Weight Class Analysis
+A box plot was created to visualize how weight classes impact squat performance, focusing on the spread of data for each class.
+
+```{r, warning=FALSE}
+# Box plot for Best 3 Squat by Weight Class
+ggplot(cleaned_data, aes(x = factor(weight_class_kg), y = best3squat_kg)) +
+  geom_boxplot(aes(fill = factor(weight_class_kg))) +
+  scale_fill_viridis_d() +
+  labs(title = "Squat Performance by Weight Class",
+       x = "Weight Class (kg)",
+       y = "Best 3 Squat (kg)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+
+```
+
+**Observation**: Heavier weight classes tend to lift more weight, but there is significant variation within classes, suggesting that other factors beyond bodyweight, such as training and technique, play a major role.
+
+### Summary of Key Insights
+
+- **Age Trends**: Most powerlifters are in their **20s and 30s**, with performance declining after age **50**. This trend is aligned with general expectations about peak strength and athletic performance.
+
+- **Impact of Equipment**: Lifters using **Single-ply** equipment achieve significantly higher lifts, indicating the benefits of supportive gear.
+
+- **Weight Class vs. Performance**: Heavier lifters generally lift more, but skill and training are also important.
+
+---
+
+### Conclusion
+
+The analysis reveals clear patterns in powerlifting performance, influenced by factors such as **age**, **weight class**, and **equipment type**. The insights gained are valuable for lifters looking to optimize their training regimen. Coaches can use these findings to tailor their approaches based on lifter demographics.
+
+---
+
+### Limitations and Future Work
+
+- **Limitations**: The dataset contains missing values and possible data entry errors, which were mitigated but may still impact the results. There is also no information on other factors like **training regimen** or **injuries** that might influence performance.
+
+- **Future Analysis**: Further analysis could focus on **trends over multiple competitions**.
+
+### References
+
+- **International Powerlifting Federation Dataset**
+
+- **Tools and Libraries Used**: `ggplot2`, `dplyr`
